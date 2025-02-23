@@ -22,6 +22,11 @@
 
 #include "sim_avr.h"
 #include "sim_mega2560.h"
+#include "uart_pty.h"
+
+static uart_pty_t uart_pty0;
+static uart_pty_t uart_pty1;
+static uart_pty_t uart_pty2;
 
 static avr_t * make()
 {
@@ -32,6 +37,13 @@ avr_kind_t mega2560 = {
 		.names = { "atmega2560", "atmega2561" },
 		.make = make
 };
+
+void avr_special_deinit( avr_t* avr, void * data)
+{
+	uart_pty_stop(&uart_pty0);
+	// uart_pty_stop(&uart_pty1);
+	// uart_pty_stop(&uart_pty2);
+}
 
 void m2560_init(struct avr_t * avr)
 {
@@ -67,6 +79,15 @@ void m2560_init(struct avr_t * avr)
 	avr_timer_init(avr, &mcu->timer5);
 	avr_spi_init(avr, &mcu->spi);
 	avr_twi_init(avr, &mcu->twi);
+
+
+	avr->custom.deinit = avr_special_deinit;
+	uart_pty_init(avr, &uart_pty0);
+	uart_pty_init(avr, &uart_pty1);
+	uart_pty_init(avr, &uart_pty2);
+	uart_pty_connect(&uart_pty0, '0');
+	uart_pty_connect(&uart_pty1, '1');
+	uart_pty_connect(&uart_pty2, '2');
 }
 
 void m2560_reset(struct avr_t * avr)
