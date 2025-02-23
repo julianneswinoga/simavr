@@ -23,10 +23,12 @@
 #include "sim_avr.h"
 #include "sim_mega2560.h"
 #include "uart_pty.h"
+#include "sim_vcd_file.h"
 
 static uart_pty_t uart_pty0;
 static uart_pty_t uart_pty1;
 static uart_pty_t uart_pty2;
+static avr_vcd_t vcd_file;
 
 static avr_t * make()
 {
@@ -88,6 +90,23 @@ void m2560_init(struct avr_t * avr)
 	uart_pty_connect(&uart_pty0, '0');
 	uart_pty_connect(&uart_pty1, '1');
 	uart_pty_connect(&uart_pty2, '2');
+
+	// VCD output
+	avr_vcd_init(avr, "gtkwave_output.vcd", &vcd_file, 1000 /* usec */);
+	/*
+	 * Ref https://www.electronicshub.org/wp-content/smush-webp/2021/01/Arduino-Mega-Pinout.jpg.webp
+	 * Arduino D41 - PORTG 0
+	 * Arduino D40 - PORTG 1
+	 */
+	avr_vcd_add_signal(&vcd_file, avr_io_getirq(avr, AVR_IOCTL_IOPORT_GETIRQ('G'), 0), 1, "RA_STEP");
+	avr_vcd_add_signal(&vcd_file, avr_io_getirq(avr, AVR_IOCTL_IOPORT_GETIRQ('G'), 1), 1, "DEC_STEP");
+
+	avr_vcd_add_signal(&vcd_file, avr_io_getirq(avr, AVR_IOCTL_UART_GETIRQ('0'), UART_IRQ_OUTPUT), 8, "UART0_OUT");
+	avr_vcd_add_signal(&vcd_file, avr_io_getirq(avr, AVR_IOCTL_UART_GETIRQ('0'), UART_IRQ_INPUT), 8, "UART0_IN");
+
+	avr_vcd_add_signal(&vcd_file, avr_io_getirq(avr, AVR_IOCTL_UART_GETIRQ('1'), UART_IRQ_OUTPUT), 8, "UART1_OUT");
+
+	avr_vcd_start(&vcd_file);
 }
 
 void m2560_reset(struct avr_t * avr)
