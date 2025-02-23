@@ -253,6 +253,7 @@ main(
 		fprintf(stderr, "%s: AVR '%s' not known\n", argv[0], f.mmcu);
 		exit(1);
 	}
+	avr->log = (log > LOG_TRACE ? LOG_TRACE : log);
 	avr_init(avr);
 	avr->log = (log > LOG_TRACE ? LOG_TRACE : log);
 #ifdef CONFIG_SIMAVR_TRACE
