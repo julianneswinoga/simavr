@@ -36,15 +36,17 @@ all:
 include ../Makefile.common
 
 cores	:= ${wildcard cores/*.c}
-sim		:= ${wildcard sim/sim_*.c} ${wildcard sim/avr_*.c}
-sim_o 	:= ${patsubst sim/%.c, ${OBJ}/%.o, ${sim}}
+sim		:= ${wildcard sim/sim_*.c} ${wildcard sim/avr_*.c} ../examples/parts/uart_pty.c
+sim_o 	:= ${patsubst sim/%.c, ${OBJ}/%.o, ${sim}} ${patsubst ../examples/parts/%.c, ${OBJ}/%.o, ${sim}}
 
 VPATH	= cores
 VPATH	+= sim
+VPATH	+= ../examples/parts
 
 IPATH	+= sim
 IPATH	+= .
 IPATH	+= ../../shared
+IPATH	+= ../examples/parts
 
 #
 # Static library
